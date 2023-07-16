@@ -337,7 +337,11 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
 
         # Crear la figura y agregar la superficie
         fig_superficie_real = go.Figure(data=[superficie], layout=layout)
-
+        
+        # Actualizar las etiquetas de los puntos
+        fig_superficie_real.update_traces(
+            hovertemplate='<b>Hour</b>: %{x}<br><b>Date</b>: %{y}<br><b>KWh</b>: %{z}<extra></extra>',  # Formato de las etiquetas en el popup
+        )
         
         ###
         
@@ -386,6 +390,11 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
         # Crear la figura y agregar la superficie
         fig_superficie_forecast = go.Figure(data=[superficie], layout=layout)
 
+        # Actualizar las etiquetas de los puntos
+        fig_superficie_forecast.update_traces(
+            hovertemplate='<b>Hour</b>: %{x}<br><b>Date</b>: %{y}<br><b>KWh</b>: %{z}<extra></extra>',  # Formato de las etiquetas en el popup
+        )
+            
     
         ###
         
