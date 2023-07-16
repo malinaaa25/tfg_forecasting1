@@ -867,8 +867,8 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
 
                   """}
 
-            components.html(embed_component['linkedin'], height=250) #, width=300, height=150
-                
+            #components.html(embed_component['linkedin'], height=250) #, width=300, height=150
+            st.components.v1.html(embed_component['linkedin'], height=250)   
                 
                 
 else:
