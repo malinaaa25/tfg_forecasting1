@@ -873,15 +873,27 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
                 
 else:
     st.write('This is an app to predict the production of energy of a solar field 24 hours in advance.') 
-    st.write('To proceed, please upload the files in the left sidebar. These must contain the solar field information detailed for the previous 24 hours from now, otherwise the application will not work.')    
+    st.write('To proceed, please upload the files in the left sidebar. These must contain the solar field information detailed for the previous 24 hours from this moment, otherwise the application will not work.')
+    st.write('The information should be broken down by hours and the variables needed from the solar field platform are:')
+   
+    parrafos = [
+        "Irradiation_average",
+        "Power by Inverter",
+        "Ambient Temperature",
+        "Module Temperature",
+        "Soiling Loss Sensor 1",
+        "Soiling Loss Sensor 2"
+    ]
 
-    
-    
+    # Mostrar los párrafos con puntos al principio
+    for i, parrafo in enumerate(parrafos):
+        #st.write(f"{i + 1}. {parrafo}")
+        indentacion = "&nbsp;" * 4
+        contenido = f"{indentacion}{i + 1}. <b>{parrafo}</b>"
+        st.markdown(f"<p style='text-indent: 20px;'>{contenido}</p>", unsafe_allow_html=True)
+        
 
-    
-    
-    
-    
+
     
     
     
