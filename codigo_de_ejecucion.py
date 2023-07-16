@@ -13,8 +13,8 @@ from janitor import clean_names
 
 import locale
 #locale.setlocale(locale.LC_TIME, 'es_ES.utf8')
-locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-
+#locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+locale.setlocale(locale.LC_ALL, 'C')
 
 from sklearn.preprocessing import OneHotEncoder
 from category_encoders import TargetEncoder
