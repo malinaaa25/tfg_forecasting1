@@ -682,7 +682,7 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
         # Definir el estilo personalizado
         fondo_anaranjado = """
         <style>
-            .custom-box {
+            .fondo_naranja {
                 background-color: rgba(255, 240, 210, 0.7);
                 padding: 20px;
                 border-radius: 5px;
@@ -692,7 +692,7 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
 
         fondo_azulado = """
         <style>
-            .custom-box {
+            .fondo_azul {
                 background-color: rgba(200, 210, 230, 0.4);
                 padding: 20px;
                 border-radius: 5px;
@@ -708,20 +708,31 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
         }
         </style>
         """
-
-        # Mensaje de sensor de polvo
-        if (df_historico.loss_sensor_1.mean() > 0.94 ) & (df_historico.loss_sensor_2.mean() > 0.99):
-            # Agregar el estilo personalizado
-            st.markdown(fondo_anaranjado, unsafe_allow_html=True)
+        
+        
+        ## Mensaje se detectan fallos de conexión en el sensor de energía
+        # Verificar si la columna contiene el valor '-'
+        if '-' in df_historico['kw_inverter'].values:
             st.markdown(espacio, unsafe_allow_html=True)
-            st.markdown('<div class="custom-box"> ⚠️ <span class="space"></span> A high dust amount is detected by the sensors. It is recommended to follow up for cleaning if the amount of dust does not decrease.</div>', unsafe_allow_html=True)
-
+            st.markdown('<div class="fondo_naranja"> ⚠️ <span class="space"></span> A failed of connection is detected concerning the data collected by the power sensor. This may lead to worse model predictions.</div>', unsafe_allow_html=True)
+            st.markdown(fondo_anaranjado, unsafe_allow_html=True)
+     
+        # Mensaje de sensor de polvo
+        
+        #Primero hacemos un pretratamiento por si los datos vinieran como '-'
+        df_historico_indicador = df_historico[(df_historico['loss_sensor_1'] != '-') & (df_historico['loss_sensor_2'] != '-')]
+        
+        if (df_historico_indicador.loss_sensor_1.mean() > 0.94 ) & (df_historico_indicador.loss_sensor_2.mean() > 0.99):
+            # Agregar el estilo personalizado
+            st.markdown(espacio, unsafe_allow_html=True)
+            st.markdown('<div class="fondo_naranja"> ⚠️ <span class="space"></span> A high dust amount is detected by the sensors. It is recommended to follow up for cleaning if the amount of dust does not decrease.</div>', unsafe_allow_html=True)
+            st.markdown(fondo_anaranjado, unsafe_allow_html=True)
+            
         else:
             # Agregar el estilo personalizado
-            st.markdown(fondo_azulado, unsafe_allow_html=True)   
             st.markdown(espacio, unsafe_allow_html=True)
-            st.markdown('<div class="custom-box"> ℹ️ <span class="space"></span> Sensors detect normal accumulation of dust; therefore, no cleaning measures are required yet.</div>', unsafe_allow_html=True)
-
+            st.markdown('<div class="fondo_azul"> ℹ️ <span class="space"></span> Sensors detect normal accumulation of dust; therefore, no cleaning measures are required yet.</div>', unsafe_allow_html=True)
+            st.markdown(fondo_azulado, unsafe_allow_html=True)   
 
 
             
