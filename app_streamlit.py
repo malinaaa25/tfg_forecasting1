@@ -19,6 +19,7 @@ import statistics
 from io import BytesIO
 import base64
 
+import pytz
 
 
 
@@ -43,17 +44,26 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 with st.sidebar:
     st.image('foto_parque_solar.png')
     
-    # INPUTS
-    dataset_irrad_energia = st.file_uploader('Select irradiance and energy file')
-    dataset_polvo = st.file_uploader('Select dust data file')
-    dataset_temperatura = st.file_uploader('Select temperature file')
-    dataset_openweathermap = st.file_uploader('Select openweathermap file')
-    dataset_futuro_openweathermap = st.file_uploader('Select openweathermap future file')
+    #INPUTS FIJOS
+    #fecha_hora_actual = datetime(2022, 11, 1, 0)   #31 de octubre
+    
+    # Definir las fechas mínima y máxima permitidas
+    fecha_minima = datetime(2022, 10, 2)
+    fecha_maxima = datetime(2022, 11, 14)
 
-    # INPUTS FIJOS
-    fecha_hora_actual = datetime(2022, 11, 1, 0)   #31 de octubre
+    # Obtener la fecha seleccionada por el usuario con restricciones
+    fecha_hora_actual = st.date_input("Select a date", value=fecha_minima, min_value=fecha_minima, max_value=fecha_maxima)
+    fecha_hora_actual = datetime(fecha_hora_actual.year, fecha_hora_actual.month, fecha_hora_actual.day, 0)
     
-    
+    # INPUTS
+    #dataset_irrad_energia = st.file_uploader('Select irradiance and energy file')
+    #dataset_polvo = st.file_uploader('Select dust data file')
+    #dataset_temperatura = st.file_uploader('Select temperature file')
+    dataset_carga_planta = st.file_uploader('Select field file')
+    dataset_openweathermap = st.file_uploader('Select weather file')
+    #dataset_futuro_openweathermap = st.file_uploader('Select openweathermap future file')
+
+
     
 ### PARTE CENTRAL APP
 
@@ -75,30 +85,41 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
         
         # Creamos dataframes
 
-        @st.cache_data()
-        def carga_datos_irradiacion_energia(dataset_irrad_energia):
-            if dataset_irrad_energia is not None:
-                dataset_irrad_energia = pd.read_excel(dataset_irrad_energia)
-            else:
-                st.stop()
-            return(dataset_irrad_energia)
+        #@st.cache_data()
+        #def carga_datos_irradiacion_energia(dataset_irrad_energia):
+        #    if dataset_irrad_energia is not None:
+        #        dataset_irrad_energia = pd.read_excel(dataset_irrad_energia)
+        #    else:
+        #        st.stop()
+        #    return(dataset_irrad_energia)
 
 
-        @st.cache_data()
-        def carga_datos_polvo(dataset_polvo):
-            if dataset_polvo is not None:
-                dataset_polvo = pd.read_excel(dataset_polvo)
-            else:
-                st.stop()
-            return(dataset_polvo)
+        #@st.cache_data()
+        #def carga_datos_polvo(dataset_polvo):
+        #    if dataset_polvo is not None:
+        #        dataset_polvo = pd.read_excel(dataset_polvo)
+        #    else:
+        #        st.stop()
+        #    return(dataset_polvo)
 
+        #@st.cache_data()
+        #def carga_datos_temp(dataset_temperatura):
+        #    if dataset_temperatura is not None:
+        #        dataset_temperatura = pd.read_excel(dataset_temperatura)
+        #    else:
+        #        st.stop()
+        #    return(dataset_temperatura)
+        
+        
+        
         @st.cache_data()
-        def carga_datos_temp(dataset_temperatura):
-            if dataset_temperatura is not None:
-                dataset_temperatura = pd.read_excel(dataset_temperatura)
+        def carga_datos_planta(dataset_carga_planta):
+            if dataset_carga_planta is not None:
+                dataset_carga_planta = pd.read_excel(dataset_carga_planta)
             else:
                 st.stop()
-            return(dataset_temperatura)
+            return(dataset_carga_planta)
+
 
         @st.cache_data()
         def carga_datos_openweathermap(dataset_openweathermap):
@@ -108,13 +129,13 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
                 st.stop()
             return(dataset_openweathermap)
 
-        @st.cache_data()
-        def carga_datos_futuro_openweathermap(dataset_futuro_openweathermap):
-            if dataset_futuro_openweathermap is not None:
-                dataset_futuro_openweathermap = pd.read_csv(dataset_futuro_openweathermap, sep=',')
-            else:
-                st.stop()
-            return(dataset_futuro_openweathermap)
+        #@st.cache_data()
+        #def carga_datos_futuro_openweathermap(dataset_futuro_openweathermap):
+        #    if dataset_futuro_openweathermap is not None:
+        #        dataset_futuro_openweathermap = pd.read_csv(dataset_futuro_openweathermap, sep=',')
+        #    else:
+       #         st.stop()
+        #    return(dataset_futuro_openweathermap)
 
 
 
@@ -133,13 +154,24 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
 
 
         #Ejecutar funciones
-
-        dataset_irrad_energia = carga_datos_irradiacion_energia(dataset_irrad_energia)
-        dataset_polvo = carga_datos_polvo(dataset_polvo)
-        dataset_temperatura = carga_datos_temp(dataset_temperatura)
+    
+        #dataset_irrad_energia = carga_datos_irradiacion_energia(dataset_irrad_energia)
+        #dataset_polvo = carga_datos_polvo(dataset_polvo)
+        #dataset_temperatura = carga_datos_temp(dataset_temperatura)
+        dataset_carga_planta = carga_datos_planta(dataset_carga_planta)
         dataset_openweathermap = carga_datos_openweathermap(dataset_openweathermap)
-        dataset_futuro_openweathermap = carga_datos_futuro_openweathermap(dataset_futuro_openweathermap)
+        dataset_futuro_openweathermap = dataset_openweathermap.copy()
+        #dataset_futuro_openweathermap = carga_datos_openweathermap(dataset_openweathermap_input)
+        
+        #Separamos los datos que provienen de la planta en varios dataframes y tenermos que resetear los índice para que el código funcione
+        
+        dataset_irrad_energia = dataset_carga_planta[(dataset_carga_planta['Name'] == 'Helechal (ES).Plant.Irradiation_average') | (dataset_carga_planta['Name'] == 'Helechal (ES).Plant.Power by Inverter')].reset_index(drop=True)
+        
+        dataset_polvo = dataset_carga_planta[(dataset_carga_planta['Name'] == 'Helechal (ES).Dust_IQ.01.Soiling Loss Sensor 1')|(dataset_carga_planta['Name'] == 'Helechal (ES).Dust_IQ.01.Soiling Loss Sensor 2')].reset_index(drop=True)
 
+        dataset_temperatura = dataset_carga_planta[(dataset_carga_planta['Name'] == 'Helechal (ES).Meteo.z.bloxx.Ambient') | (dataset_carga_planta['Name'] == 'Helechal (ES).Meteo.z.bloxx.Module')].reset_index(drop=True)
+        
+        
 
         #Ejecuta el modelo    
         df_forecast, df_historico = ejecuccion_de_modelo(fecha_hora_actual, dataset_irrad_energia, dataset_polvo, dataset_temperatura, dataset_openweathermap, dataset_futuro_openweathermap)
@@ -883,11 +915,30 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
                 
                 
 else:
+    
+    #Calculamos la fecha y hora actuales y 24h previas para mostrar mensaje. Esta será la hora de Madrid, España
+    
+    def obtener_fecha_hora_madrid():
+        zona_horaria_madrid = pytz.timezone('Europe/Madrid')
+        fecha_hora_madrid = datetime.now(zona_horaria_madrid)
+        return fecha_hora_madrid.replace(minute=0, second=0, microsecond=0)
+    
+    # Obtener la fecha y hora de Madrid
+    fecha_hora_actual = obtener_fecha_hora_madrid()
+    
+    # 23 horas antes
+    desplazamiento = timedelta(hours=23)
+    fecha_24_horas_antes = fecha_hora_actual - desplazamiento
+    
+    #Texto a mostrar
     st.write('This is an app to predict the production of energy of a solar field 24 hours in advance.') 
-    st.write('To proceed, please upload the files in the left sidebar. These must contain the solar field information detailed for the previous 24 hours from this moment, otherwise the application will not work.')
+    #st.write(f"To proceed, please upload the files in the left sidebar. These must contain the solar field information detailed from **{fecha_24_horas_antes.strftime('%d-%m-%Y at %Hh')}** to **{fecha_hora_actual.strftime('%d-%m-%Y at %Hh')}**, all period included otherwise the application will not work.")
+    st.write(f"To proceed, please upload the files in the left sidebar and select a date to make a future prediction. The date shall be from **2nd October 2022** to **14th November 2022**.")
     st.write('The information should be broken down by hours and the variables needed from the solar field platform are:')
     st.markdown("<b><em>Irradiation_average</b></em>, <b><em>Power by Inverter</b></em>, <b><em>Ambient Temperature</b></em>, <b><em>Module Temperature</b></em>, <b><em>Soiling Loss Sensor 1</b></em> and <b><em>Soiling Loss Sensor 2</b></em> ", unsafe_allow_html=True)
    
+
+
     #parrafos = [ "Irradiation_average", "Power by Inverter",  "Ambient Temperature", "Module Temperature", "Soiling Loss Sensor 1", "Soiling Loss Sensor 2"]
 
     # Mostrar los párrafos con puntos al principio
