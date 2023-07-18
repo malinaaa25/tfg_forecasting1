@@ -309,14 +309,30 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
                 valores_kwh.append(0)
                 
             z.append(valores_kwh)
-            
-            
+        
+        
+        # Definir el esquema de colores personalizado en base a Viridis, haciendo cambios
+        color_personalizado_colorscale = [
+            [0, 'rgb(0, 0, 0)'],        # Color negro (en formato RGB)
+            [0.1, 'rgb(68, 1, 84)'],
+            [0.2, 'rgb(72, 29, 119)'],
+            [0.3, 'rgb(68, 55, 149)'],
+            [0.4, 'rgb(56, 81, 163)'],
+            [0.5, 'rgb(42, 107, 168)'],
+            [0.6, 'rgb(30, 132, 171)'],
+            [0.7, 'rgb(33, 158, 161)'],
+            [0.8, 'rgb(78, 183, 135)'],
+            [0.9, 'rgb(146, 205, 94)'],
+            [0.95, 'rgb(209, 231, 66)'],
+            [1.0, 'rgb(255, 255, 0)']     # Color amarillo (RGB: 255, 255, 0)
+        ]
+        
         # Crear el gráfico de superficie
         superficie = go.Surface(
             x=x,
             y=y,
             z=z,
-            colorscale='electric'  # Esquema de colores
+            colorscale= color_personalizado_colorscale     
         )
 
         # Configurar el diseño del gráfico
@@ -367,7 +383,7 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
             x=x,
             y=y,
             z=z,
-            colorscale='electric'  # Esquema de colores
+            colorscale= color_personalizado_colorscale  # Esquema de colores personalizado
         )
 
         # Configurar el diseño del gráfico
@@ -830,33 +846,28 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
         espacio = st.empty()
         espacio.markdown("---")
         
-        #Dejar un espacio
-        st.markdown('<div style="height: 30px; margin-left: 15px;"></div>', unsafe_allow_html=True)
-
-            
-               
+        st.header('Information about the project and contact')    
+        st.markdown('<div style="height: 20px; ></div>', unsafe_allow_html=True)    
         
         with st.expander("**Further information**"):
              
 
             st.markdown('<div style="height: 40px; "></div>', unsafe_allow_html=True)
             
-            st.subheader("Information about the project")
+            #st.subheader("Information about the project")
                 
                 
-            st.markdown('This application has been developed as part of my final degree project in Industrial Technologies Engineering at Rey Juan Carlos University. The main objective is to address a problem in the field of industrial engineering.')
+            st.markdown('This application has been developed as part of my final degree project in Industrial Technologies Engineering at Rey Juan Carlos University. The main objective is to address a problem in the field of engineering.')
 
-            st.markdown('The application, designed in Streamlit, is the result of extensive research and development carried out as part of my thesis. The main focus has been to develop a 24 hour energy forecasting model for a solar field company.')
+            st.markdown('The application, designed in Streamlit, is the result of extensive research and development carried out as part of my thesis. The main focus has been to develop a 24 hour energy forecasting model  for a solar field belonging to a company specialised in photovoltaic solar energy.')
+
+            st.markdown('In order to obtain accurate predictions, methodologies such as data analysis and development of a machine learning model have been implemented.')
                 
-            st.markdown('In order to obtain accurate predictions, methodologies such as data analysis and development of machine learning models have been implemented.')
-                
-            st.markdown('The result is an application that is easy and simple to use. Users can embed historical solar plant data from the previous 24 hours and receive a solar energy production forecast for the next 24 hours. In addition, the connection to a weather forecasting application is established in order to improve the results of the prediction.')
+            st.markdown('The result is an application that is easy and simple to use that allows users to import historical data from a solar plant from the previous 24 hours and obtain the solar energy production forecast for the next 24 hours. In addition, the connection to a weather forecasting application is established in order to improve the results of the prediction.')
                 
             st.markdown('This work represents a significant contribution to the field of the solar energy industry. The developed forecasting model has the potential to optimise the management and planning of power generation in solar fields, helping the company to maximise its operational efficiency and reduce costs. By predicting energy production, hours in advance, supply decisions can be made in relation to demand, ensuring a more stable supply of energy.')
                 
             st.markdown('I am grateful to both my university and tutor fo giving me the chance to carry out this final thesis. I would also like to express my gratitude to the company that collaborated and provided the necessary data for the development of the prediction model.')
-
-            st.markdown('I hope that this application will be useful and contribute to the advancement of the solar energy industry. By accurately forecasting power generation 24 hours ahead, we are taking an important step towards the wider and more efficient adoption of solar power.')
             
             st.markdown('For further information, please contact: ')
                 
@@ -875,22 +886,16 @@ else:
     st.write('This is an app to predict the production of energy of a solar field 24 hours in advance.') 
     st.write('To proceed, please upload the files in the left sidebar. These must contain the solar field information detailed for the previous 24 hours from this moment, otherwise the application will not work.')
     st.write('The information should be broken down by hours and the variables needed from the solar field platform are:')
+    st.markdown("<b><em>Irradiation_average</b></em>, <b><em>Power by Inverter</b></em>, <b><em>Ambient Temperature</b></em>, <b><em>Module Temperature</b></em>, <b><em>Soiling Loss Sensor 1</b></em> and <b><em>Soiling Loss Sensor 2</b></em> ", unsafe_allow_html=True)
    
-    parrafos = [
-        "Irradiation_average",
-        "Power by Inverter",
-        "Ambient Temperature",
-        "Module Temperature",
-        "Soiling Loss Sensor 1",
-        "Soiling Loss Sensor 2"
-    ]
+    #parrafos = [ "Irradiation_average", "Power by Inverter",  "Ambient Temperature", "Module Temperature", "Soiling Loss Sensor 1", "Soiling Loss Sensor 2"]
 
     # Mostrar los párrafos con puntos al principio
-    for i, parrafo in enumerate(parrafos):
+    #for i, parrafo in enumerate(parrafos):
         #st.write(f"{i + 1}. {parrafo}")
-        indentacion = "&nbsp;" * 4
-        contenido = f"{indentacion}{i + 1}. <b>{parrafo}</b>"
-        st.markdown(f"<p style='text-indent: 20px;'>{contenido}</p>", unsafe_allow_html=True)
+       # indentacion = "&nbsp;" * 4
+       # contenido = f"{indentacion}{i + 1}. <b>{parrafo}</b>"
+       # st.markdown(f"<p style='text-indent: 20px;'>{contenido}</p>", unsafe_allow_html=True)
         
 
 
