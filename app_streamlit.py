@@ -60,7 +60,7 @@ with st.sidebar:
     #dataset_polvo = st.file_uploader('Select dust data file')
     #dataset_temperatura = st.file_uploader('Select temperature file')
     dataset_carga_planta = st.file_uploader('Select field file')
-    dataset_openweathermap = st.file_uploader('Select weather file')
+    #dataset_openweathermap = st.file_uploader('Select weather file')
     #dataset_futuro_openweathermap = st.file_uploader('Select openweathermap future file')
 
 
@@ -121,13 +121,13 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
             return(dataset_carga_planta)
 
 
-        @st.cache_data()
-        def carga_datos_openweathermap(dataset_openweathermap):
-            if dataset_openweathermap is not None:
-                dataset_openweathermap = pd.read_csv(dataset_openweathermap, sep=',')
-            else:
-                st.stop()
-            return(dataset_openweathermap)
+        #@st.cache_data()
+        #def carga_datos_openweathermap(dataset_openweathermap):
+            #if dataset_openweathermap is not None:
+                #dataset_openweathermap = pd.read_csv(dataset_openweathermap, sep=',')
+            #else:
+                #st.stop()
+            #return(dataset_openweathermap)
 
         #@st.cache_data()
         #def carga_datos_futuro_openweathermap(dataset_futuro_openweathermap):
@@ -158,8 +158,12 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
         #dataset_irrad_energia = carga_datos_irradiacion_energia(dataset_irrad_energia)
         #dataset_polvo = carga_datos_polvo(dataset_polvo)
         #dataset_temperatura = carga_datos_temp(dataset_temperatura)
+        #dataset_openweathermap = carga_datos_openweathermap(dataset_openweathermap)
+        
         dataset_carga_planta = carga_datos_planta(dataset_carga_planta)
-        dataset_openweathermap = carga_datos_openweathermap(dataset_openweathermap)
+        
+        dataset_openweathermap = pd.read_csv('datos_produccion_historico_openweathermap.csv')
+                
         dataset_futuro_openweathermap = dataset_openweathermap.copy()
         #dataset_futuro_openweathermap = carga_datos_openweathermap(dataset_openweathermap_input)
         
