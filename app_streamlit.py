@@ -37,7 +37,9 @@ hide_streamlit_style = """
             footer {visibility: hidden;}
             </style>
             """
-st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
+
 
 ### SIDEBAR
 
@@ -67,7 +69,9 @@ with st.sidebar:
     
 ### PARTE CENTRAL APP
 
+
 st.title('Forecasting solar energy production')
+    
 
 
 ### CÁLCULOS
@@ -594,7 +598,7 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
 
         # OUTPUT
 
-        st.header('Field information')
+        st.header('Field information' ,anchor=None)
         col1,col2 =st.columns((1.5,1))
 
         with col1:
@@ -640,7 +644,7 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
         espacio.markdown("---")
 
         #Añadimos subheader
-        st.header('Forecast of energy production')
+        st.header('Forecast of energy production',anchor=None)
 
         #Creamos nuevas columnas
         col3,col4 = st.columns((4.5,1))    
@@ -946,13 +950,39 @@ else:
     desplazamiento = timedelta(hours=23)
     fecha_24_horas_antes = fecha_hora_actual - desplazamiento
     
+
     #Texto a mostrar
     st.write('This is an app to predict the production of energy of a solar field 24 hours in advance.') 
-    #st.write(f"To proceed, please upload the files in the left sidebar. These must contain the solar field information detailed from **{fecha_24_horas_antes.strftime('%d-%m-%Y at %Hh')}** to **{fecha_hora_actual.strftime('%d-%m-%Y at %Hh')}**, all period included otherwise the application will not work.")
+        #st.write(f"To proceed, please upload the files in the left sidebar. These must contain the solar field information detailed from **{fecha_24_horas_antes.strftime('%d-%m-%Y at %Hh')}** to **{fecha_hora_actual.strftime('%d-%m-%Y at %Hh')}**, all period included otherwise the application will not work.")
     st.write(f"To proceed, please upload the files in the left sidebar and select a date to make a future prediction. The date shall be from **2nd October 2022** to **14th November 2022**.")
     st.write('The information should be broken down by hours and the variables needed from the solar field platform are:')
     st.markdown("<b><em>Irradiation_average</b></em>, <b><em>Power by Inverter</b></em>, <b><em>Ambient Temperature</b></em>, <b><em>Module Temperature</b></em>, <b><em>Soiling Loss Sensor 1</b></em> and <b><em>Soiling Loss Sensor 2</b></em> ", unsafe_allow_html=True)
-   
+
+    
+    col8, col9, col10 = st.columns((1,4,1))
+    
+    with col8:
+        st.empty()
+    
+    with col9:
+        #Cargamos icono de lottie
+        def cargar_lottie(filepath:str):
+            with open(filepath, "r") as f:
+                return json.load(f)
+
+        lottie_portada = cargar_lottie("energy_lottie.json")
+        st_lottie(
+                      lottie_portada,
+                      speed = 1.1,
+                      loop = True,
+                      quality = "high",
+                      height = 250,  
+                      width = 500  
+                     ) 
+
+    with col10:
+        st.empty()
+
 
 
     #parrafos = [ "Irradiation_average", "Power by Inverter",  "Ambient Temperature", "Module Temperature", "Soiling Loss Sensor 1", "Soiling Loss Sensor 2"]
