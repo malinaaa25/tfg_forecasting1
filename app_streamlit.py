@@ -954,8 +954,8 @@ else:
     #Texto a mostrar
     st.write('This is an app to predict the production of energy of a solar field 24 hours in advance.') 
         #st.write(f"To proceed, please upload the files in the left sidebar. These must contain the solar field information detailed from **{fecha_24_horas_antes.strftime('%d-%m-%Y at %Hh')}** to **{fecha_hora_actual.strftime('%d-%m-%Y at %Hh')}**, all period included otherwise the application will not work.")
-    st.write(f"To proceed, please upload the files in the left sidebar and select a date to make a future prediction. The date shall be from **2nd October 2022** to **14th November 2022**.")
-    st.write('The information should be broken down by hours and the variables needed from the solar field platform are:')
+    st.write(f"To proceed, please select a date and then click the button in the left sidebar to make a future prediction. The date shall be from **2nd October 2022** to **14th November 2022**.")
+    st.write("The information regarding the solar plant and weahter forecast it's already uploaded and it's broken down by hours.The variables used from the solar field platform are:")
     st.markdown("<b><em>Irradiation_average</b></em>, <b><em>Power by Inverter</b></em>, <b><em>Ambient Temperature</b></em>, <b><em>Module Temperature</b></em>, <b><em>Soiling Loss Sensor 1</b></em> and <b><em>Soiling Loss Sensor 2</b></em> ", unsafe_allow_html=True)
 
     
