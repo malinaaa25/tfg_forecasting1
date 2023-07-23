@@ -59,7 +59,7 @@ with st.sidebar:
     #dataset_irrad_energia = st.file_uploader('Select irradiance and energy file')
     #dataset_polvo = st.file_uploader('Select dust data file')
     #dataset_temperatura = st.file_uploader('Select temperature file')
-    dataset_carga_planta = st.file_uploader('Select field file')
+    #dataset_carga_planta = st.file_uploader('Select field file')
     #dataset_openweathermap = st.file_uploader('Select weather file')
     #dataset_futuro_openweathermap = st.file_uploader('Select openweathermap future file')
 
@@ -112,13 +112,13 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
         
         
         
-        @st.cache_data()
-        def carga_datos_planta(dataset_carga_planta):
-            if dataset_carga_planta is not None:
-                dataset_carga_planta = pd.read_excel(dataset_carga_planta)
-            else:
-                st.stop()
-            return(dataset_carga_planta)
+        #@st.cache_data()
+        #def carga_datos_planta(dataset_carga_planta):
+       #     if dataset_carga_planta is not None:
+       #         dataset_carga_planta = pd.read_excel(dataset_carga_planta)
+       #     else:
+       #         st.stop()
+       #     return(dataset_carga_planta)
 
 
         #@st.cache_data()
@@ -159,8 +159,9 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
         #dataset_polvo = carga_datos_polvo(dataset_polvo)
         #dataset_temperatura = carga_datos_temp(dataset_temperatura)
         #dataset_openweathermap = carga_datos_openweathermap(dataset_openweathermap)
+        #dataset_carga_planta = carga_datos_planta(dataset_carga_planta)
         
-        dataset_carga_planta = carga_datos_planta(dataset_carga_planta)
+        dataset_carga_planta = pd.read_excel('data_field.xlsx')
         
         dataset_openweathermap = pd.read_csv('datos_produccion_historico_openweathermap.csv')
                 
