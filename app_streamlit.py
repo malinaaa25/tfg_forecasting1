@@ -723,7 +723,7 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
         # Verificar si la columna contiene el valor '-'
         if '-' in df_historico['kw_inverter'].values:
             st.markdown(espacio, unsafe_allow_html=True)
-            st.markdown('<div class="fondo_naranja"> ⚠️ <span class="space"></span> A failed of connection is detected concerning the data collected by the power sensor. This may lead to worse model predictions.</div>', unsafe_allow_html=True)
+            st.markdown('<div class="fondo_naranja"> ⚠️ <span class="space"></span> A loss of connection is detected concerning the data collected by the power sensor. This may lead to worse model predictions.</div>', unsafe_allow_html=True)
             st.markdown(fondo_anaranjado, unsafe_allow_html=True)
      
         # Mensaje de sensor de polvo
