@@ -21,6 +21,8 @@ import base64
 
 import pytz
 
+import requests
+
 
 
 ### CONFIGURACIÓN DE LA PÁGINA
@@ -266,6 +268,163 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
         
         ###      
 
+        ### PRECIO FORECASTING
+        
+        #Conectaremos con la página web Omie a través de un paquete de python y calcularemos el precio de los KWh generados.
+        
+        #Primero arreglaremos los datos que nos vienen del paquete
+
+        #fecha_hora_actual = dt.datetime(2023, 8, 2)
+
+
+        # Sumar 24 horas
+        desplazamiento = timedelta(hours=24)
+        fecha_24_horas_futuro = fecha_hora_actual + desplazamiento
+
+        # Obtener el año como una cadena de texto
+        anyo = str(fecha_hora_actual.year)
+
+        # Obtener el mes como una cadena de texto con formato 'MM'
+        mes = f"{fecha_hora_actual.month:02d}"
+
+        # Obtener el día como una cadena de texto con formato 'DD'
+        dia = f"{fecha_hora_actual.day:02d}"
+
+        # Obtener el año final como una cadena de texto
+        anyo_final = str(fecha_hora_actual.year)
+
+        # Obtener el mes final como una cadena de texto con formato 'MM'
+        mes_final = f"{fecha_hora_actual.month:02d}"
+
+        # Obtener el día final como una cadena de texto con formato 'DD'
+        dia_final = f"{fecha_hora_actual.day:02d}"
+
+
+        url_inicial = f"https://www.omie.es/sites/default/files/dados/AGNO_{anyo}/MES_{mes}/TXT/INT_PBC_EV_H_1_{dia}_{mes}_{anyo}_{dia}_{mes}_{anyo}.TXT"
+        url_final = f"https://www.omie.es/sites/default/files/dados/AGNO_{anyo_final}/MES_{mes_final}/TXT/INT_PBC_EV_H_1_{dia_final}_{mes_final}_{anyo_final}_{dia_final}_{mes_final}_{anyo_final}.TXT"
+
+
+        url = []
+        url.append(url_inicial)
+        url.append(url_final)
+
+
+        # Leer los datos desde la URL y crear un DataFrame
+        #df = pd.read_csv(url[0], sep=";", encoding="ISO-8859-1", skiprows=2)
+
+
+
+        df = pd.DataFrame()
+
+        for url_actual in url:
+
+            # Leer los datos desde la URL actual y crear un DataFrame
+            df_actual = pd.read_csv(url_actual, sep=";", encoding="ISO-8859-1", skiprows=2)
+            df_actual = df_actual[df_actual['Unnamed: 0'] == 'Precio marginal en el sistema español (EUR/MWh)']
+            df_actual = df_actual.iloc[:,0:25]
+            df_actual = df_actual.drop(columns = ['Unnamed: 0'])
+
+            # Concatenar el DataFrame actual a df
+            df = pd.concat([df, df_actual], ignore_index=True)
+
+
+
+
+        # Crear una columna 'date' en el DataFrame
+        df['date'] = None
+
+        # Asignar el valor de fecha_hora_actual a la columna 'date' en la primera iteración
+        df.loc[0, 'date'] = fecha_hora_actual.strftime('%Y-%m-%d')
+
+        # Asignar el valor de fecha_24_horas_futuro a la columna 'date' en la segunda iteración
+        df.loc[1, 'date'] = fecha_24_horas_futuro.strftime('%Y-%m-%d')
+
+        # Mover la columna 'date' a la primera posición del DataFrame
+        df.insert(0, 'date', df.pop('date'))
+
+        # Convertimos la columna 'DATE' al tipo datetime
+        df_date = df.copy()
+        df_date['date'] = pd.to_datetime(df['date'])
+
+        # Creamos una lista para almacenar las horas del día generadas
+        horas_del_dia = []
+
+        # Iteramos por cada fecha única en el DataFrame original
+        for fecha in df_date['date'].unique():
+            # Generamos un rango de horas del día para la fecha actual
+            fecha_siguiente = fecha + pd.DateOffset(days=1)
+            horas_del_dia_fecha = pd.date_range(start=fecha, end=fecha_siguiente, freq='H', closed='left')
+            # Extendemos la lista con las horas del día generadas para la fecha actual
+            horas_del_dia.extend(horas_del_dia_fecha)
+
+        # Creamos un DataFrame con las horas del día
+        df_date = pd.DataFrame({'date': horas_del_dia})
+
+        # Lista para almacenar los registros transpuestos
+        registros_transpuestos = []
+
+        df = df.drop(columns = ['date'])
+        # Iteramos por cada registro (fila) en el DataFrame
+        for index, row in df.iterrows():
+            # Transponemos el registro actual y lo almacenamos como una Serie
+            registro_transpuesto = row.reset_index(drop=True)
+            registro_transpuesto = registro_transpuesto.rename('Valor')
+            registros_transpuestos.append(registro_transpuesto)
+
+        # Concatenamos las Series transpuestas en un nuevo DataFrame
+        EUR_MWh = pd.concat(registros_transpuestos, axis=0, ignore_index=True)
+
+        # Convertimos la Serie en un DataFrame con una columna llamada 'Valor'
+        EUR_MWh = EUR_MWh.to_frame(name='€_MWh')
+        EUR_MWh['€_MWh'] = EUR_MWh['€_MWh'].str.replace(',', '.')
+        EUR_MWh = pd.to_numeric(EUR_MWh['€_MWh'], errors='coerce')        
+        
+        
+        df_precio = pd.concat([df_date, EUR_MWh], axis = 1)
+        df_precio['€_KWh'] = df_precio['€_MWh']/1000
+              
+
+        #Juntamos el dataframe del forecast de energía con el dataframe creado de precio
+        df_final_omie = pd.merge(df_forecast['kw_inverter'].reset_index(), df_precio, how = 'left', on = ['date'] )
+        
+        # Primero, convierte las columnas a numéricas
+        df_final_omie['€_KWh'] = pd.to_numeric(df_final_omie['€_KWh'], errors='coerce')
+        df_final_omie['kw_inverter'] = pd.to_numeric(df_final_omie['kw_inverter'], errors='coerce')
+
+        df_final_omie['€'] = round(df_final_omie['€_KWh'] * df_final_omie['kw_inverter'], 2)
+        
+        
+        #Calculamos el precio total de energía producida en el forecasting   
+        euros_total = df_final_omie['€'].sum()       
+        
+        
+        #Gráfico interactivo con el precio
+
+        fig_precio = go.Figure()
+
+        ### Price forecasting
+        fig_precio.add_trace(go.Scatter(
+                          x=df_final_omie.date,
+                          y=df_final_omie['€'],
+                          mode="lines+markers",
+                          line=dict(color='#808000', dash='dashdot'),  
+                          marker=dict(size=4, color='#3B5323', symbol='circle'),
+                          hoverlabel=dict(font=dict(color="#556B2F")),
+                          name="Price",
+                          fill='tozeroy',  # Rellena el área bajo la curva
+                          fillcolor='rgba(133, 153, 0, 0.1)'  # Color verde oliva claro semitransparente
+                        )) 
+
+        # Actualizar las etiquetas de los puntos
+        fig_precio.update_traces(
+            hovertemplate='<b>Date</b>: %{x}<br><b>€</b>: %{y}<extra></extra>',  # Formato de las etiquetas en el popup
+        )
+
+        fig_precio.update_layout(
+                           #title='Forecast of energy production',
+                           xaxis_title="Date",
+                           yaxis_title="€"
+                        )        
 
 
         ### FORECASTING COMPARATIVA
@@ -664,6 +823,28 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
             col4.metric("Evaluation metric", " R\u00b2 : 0.92")
 
         
+        ### Precio energía
+        #Añadimos subheader
+        st.header('Price of energy production',anchor=None)
+
+        st.caption('Price of KWh is provided by the website _https://www.omie.es/_.')
+        
+        #Creamos nuevas columnas
+        col3,col4 = st.columns((4.5,1))        
+        
+        col3.plotly_chart(fig_precio, use_container_width=True)
+                
+        with col4.container():
+            st.markdown('<div style="height: 125px;"></div>', unsafe_allow_html=True)
+
+            col4.metric("Price of energy produced", str(round(euros_total,2)) + " €")
+
+            #Utilizamos la función color_de_texto creada antes para cambiar el color de la métrica
+            color_de_texto('Price of energy produced', wch_title_colour="#228B22", wch_value_colour="#228B22")
+
+
+        
+        
         ### Comparativa datos forecast vs realidad
         
         with st.expander("**Forecasting accuracy**"):
@@ -759,6 +940,8 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
 
 
         st.header('Weather forecast')
+        
+        st.caption('Weather forecast is provided by the website _https://openweathermap.org/_.')
 
         col5,col6 = st.columns((1.65,1))
 
@@ -834,11 +1017,16 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
             #Reseteamos índice
             df = df.reset_index()
             
+            
+            #Juntamos con dataframe del precio para obtener el precio por horas
+            
+            df = pd.merge(df, df_final_omie[['date','€_KWh','€']], how = 'left', on = 'date')           
+            
             #Cambiamos el formato de la columna date para que sea el que queremos
             df['date'] = df['date'].dt.strftime('%d.%m.%Y %H:%M')
             
             #Indexamos filas de interés
-            df = df[['date','kw_inverter','temp','humidity','wind_speed','wind_deg','clouds','weather_main', 'weather_description']]
+            df = df[['date','kw_inverter','€_KWh','€','temp','humidity','wind_speed','wind_deg','clouds','weather_main', 'weather_description']]
             
             # Renombrar las columnas en una sola línea de código
             df = df.rename(columns={'date': 'Date', 'kw_inverter': 'KWh', 'temp': 'Temperature [ºC]', 'humidity': '% Humidity', 'wind_speed': 'Wind speed [Km/h]', 'wind_deg': 'Wind degrees', 'clouds': '% Cloudiness', 'weather_main': 'Weather type', 'weather_description': 'Weather description'})
@@ -994,8 +1182,6 @@ else:
        # contenido = f"{indentacion}{i + 1}. <b>{parrafo}</b>"
        # st.markdown(f"<p style='text-indent: 20px;'>{contenido}</p>", unsafe_allow_html=True)
         
-
-
     
     
     
