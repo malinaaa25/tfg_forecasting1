@@ -825,9 +825,9 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
         
         ### Precio energía
         #Añadimos subheader
-        st.header('Price of energy production',anchor=None)
+        st.header('Selling price of energy',anchor=None)
 
-        st.caption('Price of KWh is provided by the website _https://www.omie.es/_.')
+        st.caption('Price of KWh is provided by the website _https://www.omie.es/_. This is the platform that provides real-time information on prices and operations in the electricity markets of the Iberian Peninsula in Spain and Portugal.')
         
         #Creamos nuevas columnas
         col3,col4 = st.columns((4.5,1))        
