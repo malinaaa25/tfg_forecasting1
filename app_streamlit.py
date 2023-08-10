@@ -840,7 +840,7 @@ if st.sidebar.button('CALCULATE FORECAST'):   # Solamente se ejecuta cuando el u
             col4.metric("Estimated income", str(round(euros_total,2)) + " €")
 
             #Utilizamos la función color_de_texto creada antes para cambiar el color de la métrica
-            color_de_texto('Price of energy produced', wch_title_colour="#228B22", wch_value_colour="#228B22")
+            color_de_texto('Estimated income', wch_title_colour="#228B22", wch_value_colour="#228B22")
 
 
         
