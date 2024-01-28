@@ -381,13 +381,13 @@ def transformacion_de_variables(x, target = None, opcion = 'entrenamiento'):
         nombres_te = [variable + '_te' for variable in vbles_te]
         te_x = pd.DataFrame(te_x, columns = nombres_te)
         
-        with open('te_retail.pickle', mode = 'wb') as file:
+        with open('te.pickle', mode = 'wb') as file:
            pickle.dump(te, file)
         
     else:
         #Como está en ejecución recuperará el guardado de disco y solo aplicará transform
         
-        with open('te_retail.pickle', mode = 'rb') as file:
+        with open('te.pickle', mode = 'rb') as file:
             te = pickle.load(file)
             
         te_x = te.transform(x[vbles_te])
