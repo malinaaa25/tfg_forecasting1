@@ -355,13 +355,13 @@ def transformacion_de_variables(x, target = None, opcion = 'entrenamiento'):
         ohe = OneHotEncoder(sparse = False, handle_unknown = 'ignore')
         ohe_x = ohe.fit_transform(x[vbles_ohe])
         ohe_x = pd.DataFrame(ohe_x, columns = ohe.get_feature_names_out())
-        with open('ohe_retail.pickle', mode = 'wb') as file:
+        with open('ohe.pickle', mode = 'wb') as file:
            pickle.dump(ohe, file)
             
     else:
         
         #Si está en ejecución recupera el guardado y solo aplica transform
-        with open('ohe_retail.pickle', mode='rb') as file:
+        with open('ohe.pickle', mode='rb') as file:
             ohe = pickle.load(file)
         ohe_x = ohe.transform(x[vbles_ohe])
         ohe_x = pd.DataFrame(ohe_x, columns = ohe.get_feature_names_out())
